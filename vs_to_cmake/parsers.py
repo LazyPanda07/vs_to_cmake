@@ -32,7 +32,7 @@ class SourceParser(BaseParser):
                 for j in i["ClCompile"]:
                     result += f"\t{j['@Include']}\n".replace("\\", "/")
 
-        result += ')\n\n'
+        result += ")\n\n"
 
         return result
 
@@ -52,6 +52,13 @@ class IncludeParser(BaseParser):
         super().__init__(data)
 
     def parse(self) -> str:
-        include = str(self._data['Project']['ItemDefinitionGroup'][0]['ClCompile']['AdditionalIncludeDirectories'])
-        include = include.replace("$(ProjectDir)", "${CMAKE_SOURCE_DIR}/").replace("\\", "/")
-        return f"target_include_directories(${{PROJECT_NAME}} PRIVATE {include})\n"
+        result = "target_include_directories(\n" + "\t${PROJECT_NAME} PRIVATE\n"
+        includes = str(self._data["Project"]["ItemDefinitionGroup"][0]["ClCompile"]["AdditionalIncludeDirectories"]).split(';')
+
+        for include in includes:
+            include = include.replace("$(ProjectDir)", "${PROJECT_SOURCE_DIR}/")
+            result += f"\t{include}\n".replace("\\", "/")
+
+        result += ")\n"
+
+        return result
