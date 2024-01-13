@@ -5,7 +5,7 @@ import pathlib
 import xmltodict
 from tqdm import tqdm
 
-from vs_to_cmake.parsers import SourceParser, ProjectParser, IncludeParser, CXXStandardParser
+from meta_information_parsers import VCXProjParser, ProjectParser
 
 
 def parse_sln(sln_path: str, output_path: str, cmake_version: str):
@@ -16,21 +16,15 @@ def parse_vcxproj(vcxproj_path: str, output_path: str, cmake_version: str):
     with open(vcxproj_path, "r") as xml_file:
         data = xmltodict.parse(xml_file.read())
 
+        project_parser = VCXProjParser(data)
         project_name = ProjectParser(data)
-        cxx_standard = CXXStandardParser(data)
-        sources = SourceParser(data)
-        include = IncludeParser(data)
 
         with open(f"{output_path}/CMakeLists.txt", "w") as file:
             file.write(f"cmake_minimum_required(VERSION {cmake_version})\n\n")
 
             file.write(project_name.parse())
 
-            file.write(cxx_standard.parse())
-
-            file.write(sources.parse())
-
-            file.write(include.parse())
+            file.write(project_parser.parse())
 
 
 def main():
