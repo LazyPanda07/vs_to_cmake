@@ -1,7 +1,7 @@
 from typing import List
 
-from vs_macro_to_cmake_macro import converter, get_vs_configuration_type_to_cmake_type
-from source_parsers import SourceParser, IncludeParser
+from vs_to_cmake.vs_macro_to_cmake_macro import converter, get_vs_configuration_type_to_cmake_type
+from vs_to_cmake.source_parsers import SourceParser, IncludeParser
 
 
 class Configuration:

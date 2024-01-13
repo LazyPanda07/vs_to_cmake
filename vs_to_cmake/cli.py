@@ -5,7 +5,7 @@ import pathlib
 import xmltodict
 from tqdm import tqdm
 
-from meta_information_parsers import VCXProjParser, ProjectParser
+from vs_to_cmake.meta_information_parsers import VCXProjParser, ProjectParser
 
 
 def parse_sln(sln_path: str, output_path: str, cmake_version: str):

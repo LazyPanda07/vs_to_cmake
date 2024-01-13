@@ -1,8 +1,8 @@
 import re
 
-from base_parser import BaseParser
-from source_parsers import SourceParser, IncludeParser
-from configuration import Configuration
+from vs_to_cmake.base_parser import BaseParser
+from vs_to_cmake.source_parsers import SourceParser, IncludeParser
+from vs_to_cmake.configuration import Configuration
 
 
 class VCXProjParser(BaseParser):

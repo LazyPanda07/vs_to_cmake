@@ -1,4 +1,4 @@
-from base_parser import BaseParser
+from vs_to_cmake.base_parser import BaseParser
 
 
 class SourceParser(BaseParser):
