@@ -36,7 +36,7 @@ def main():
     parser.add_argument("--file_path", required=True)
     parser.add_argument("--output_path", default=".")
     parser.add_argument("--cmake_version", default="3.27.0")
-    parser.add_argument("-d", "--definitions", default=[])
+    parser.add_argument("-d", "--definitions", nargs='+', default=[])
 
     args = parser.parse_args()
     file_path = args.file_path
