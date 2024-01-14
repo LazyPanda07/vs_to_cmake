@@ -1,4 +1,5 @@
 import re
+from typing import List
 
 from vs_to_cmake.base_parser import BaseParser
 from vs_to_cmake.source_parsers import SourceParser, IncludeParser
@@ -6,8 +7,9 @@ from vs_to_cmake.configuration import Configuration
 
 
 class VCXProjParser(BaseParser):
-    def __init__(self, data: dict):
+    def __init__(self, data: dict, definitions: List[str]):
         super().__init__(data)
+        self._definitions = definitions
 
     def parse(self) -> str:
         result = ""
@@ -42,6 +44,9 @@ class VCXProjParser(BaseParser):
                     definitions = information["PreprocessorDefinitions"].split(';')
 
                     for definition in definitions:
+                        configuration.add_preprocessor_definitions(definition)
+
+                    for definition in self._definitions:
                         configuration.add_preprocessor_definitions(definition)
 
                     configuration.language_standard = int(re.search(r"\d+", information["LanguageStandard"]).group())

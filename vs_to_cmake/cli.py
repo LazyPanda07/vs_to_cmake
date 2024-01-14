@@ -1,6 +1,7 @@
 import argparse
 import os
 import pathlib
+from typing import List
 
 import xmltodict
 from tqdm import tqdm
@@ -12,14 +13,14 @@ def parse_sln(sln_path: str, output_path: str, cmake_version: str):
     pass
 
 
-def parse_vcxproj(vcxproj_path: str, output_path: str, cmake_version: str):
+def parse_vcxproj(vcxproj_path: str, file_path: str, cmake_version: str, definitions: List[str]):
     with open(vcxproj_path, "r") as xml_file:
         data = xmltodict.parse(xml_file.read())
 
-        project_parser = VCXProjParser(data)
+        project_parser = VCXProjParser(data, definitions)
         project_name = ProjectParser(data)
 
-        with open(f"{output_path}/CMakeLists.txt", "w") as file:
+        with open(f"{file_path}/CMakeLists.txt", "w") as file:
             file.write(f"cmake_minimum_required(VERSION {cmake_version})\n\n")
 
             file.write(project_name.parse())
@@ -32,23 +33,26 @@ def main():
         "vs_to_cmake"
     )
 
-    parser.add_argument("--path_to_file", required=True)
+    parser.add_argument("--file_path", required=True)
     parser.add_argument("--output_path", default=".")
     parser.add_argument("--cmake_version", default="3.27.0")
-    # parser.add_argument("--clean", action=argparse.BooleanOptionalAction, default=False)
+    parser.add_argument("-d", "--definitions", default=[])
 
     args = parser.parse_args()
-    path_to_file = args.path_to_file
+    file_path = args.path_to_file
     output_path = args.output_path
     cmake_version = args.cmake_version
+    definitions = args.definitions
 
-    if not os.path.exists(path_to_file):
-        raise FileExistsError(path_to_file)
+    if not os.path.exists(file_path):
+        raise FileExistsError(file_path)
 
-    if pathlib.Path(os.path.split(path_to_file)[-1]).suffix == ".sln":
-        parse_sln(path_to_file, output_path, cmake_version)
-    elif pathlib.Path(os.path.split(path_to_file)[-1]).suffix == ".vcxproj":
-        parse_vcxproj(path_to_file, output_path, cmake_version)
+    if pathlib.Path(os.path.split(file_path)[-1]).suffix == ".sln":
+        parse_sln(file_path, output_path, cmake_version)
+    elif pathlib.Path(os.path.split(file_path)[-1]).suffix == ".vcxproj":
+        parse_vcxproj(file_path, output_path, cmake_version, definitions)
+    else:
+        raise Exception("Wrong file")
 
 
 if __name__ == '__main__':
