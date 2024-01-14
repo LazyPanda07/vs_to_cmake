@@ -39,7 +39,7 @@ def main():
     parser.add_argument("-d", "--definitions", default=[])
 
     args = parser.parse_args()
-    file_path = args.path_to_file
+    file_path = args.file_path
     output_path = args.output_path
     cmake_version = args.cmake_version
     definitions = args.definitions
