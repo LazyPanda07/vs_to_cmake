@@ -85,20 +85,31 @@ class ReferencesParser(BaseParser):
 
         if references is None:
             return result
+        
+        link_libraries = []
 
         if type(references) is list:
             for reference in references:
-                result += f"add_subdirectory({self._convert(reference['@Include'])})\n"
+                result += f"add_subdirectory({self._convert(reference['@Include'], link_libraries)})\n"
 
             result += '\n'
         else:
-            result = f"add_subdirectory({self._convert(references['@Include'])})\n\n"
+            result = f"add_subdirectory({self._convert(references['@Include'], link_libraries, None)})\n\n"
+
+        result += "target_link_libraries(\n\t${PROJECT_NAME}"
+
+        for library in link_libraries:
+            result += f"\t{library}\n"
+
+        result += ")\n"
 
         return result
 
     @staticmethod
-    def _convert(path: str) -> str:
+    def _convert(path: str, link_libraries: List[str]) -> str:
         components = path.replace('\\', '/').split('/')
+        
+        link_libraries.append(components[-1].split('.')[0])
 
         del components[-1]
 
