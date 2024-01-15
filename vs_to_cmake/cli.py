@@ -26,12 +26,12 @@ def parse_vcxproj(vcxproj_path: str, file_path: str, cmake_version: str, definit
 
             file.write(project_name_parser.parse())
 
+            file.write(project_parser.parse())
+
             references = references_parser.parse()
 
             if references:
                 file.write(references)
-
-            file.write(project_parser.parse())
 
 
 def main():
