@@ -16,6 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Create build dir
+        run: mkdir build
+
       - name: Install vs_to_cmake
         run: pip install .
 
@@ -36,7 +39,6 @@ jobs:
 
       - name: CMake
         run: |
-            mkdir build
             cd build
             cmake -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ..
 
