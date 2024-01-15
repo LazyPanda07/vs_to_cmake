@@ -94,7 +94,7 @@ class ReferencesParser(BaseParser):
 
             result += '\n'
         else:
-            result = f"add_subdirectory({self._convert(references['@Include'], link_libraries, None)})\n\n"
+            result = f"add_subdirectory({self._convert(references['@Include'], link_libraries)})\n\n"
 
         result += "target_link_libraries(\n\t${PROJECT_NAME}"
 
