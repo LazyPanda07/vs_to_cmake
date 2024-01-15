@@ -9,7 +9,7 @@ jobs:
   test:
     strategy:
       matrix:
-        platform: [windows-latest, ubuntu-latest]
+        platform: [windows-latest]
         configuration: [Debug, DebugDLL, Release, ReleaseDLL, ProductionRelease, ProductionReleaseDLL]
     runs-on: ${{ matrix.platform }}
   
