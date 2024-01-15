@@ -1,0 +1,59 @@
+name: Test
+
+on:
+  push:
+    branches: [master, dev]
+
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        platform: [windows-latest, ubuntu-latest]
+        configuration: [Debug, DebugDLL, Release, ReleaseDLL, ProductionRelease, ProductionReleaseDLL]
+    runs-on: ${{ matrix.platform }}
+  
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install vs_to_cmake
+        run: pip install .
+
+      - name: Get test project
+        uses: actions/checkout@v4
+        with:
+          repository: LazyPanda07/HTTP
+          path: HTTP
+
+      - name: Current dir
+        run: dir
+
+      - name: CMake version
+        run: cmake --version
+
+      - name: Generate CMakeLists.txt
+        run: vs_to_cmake -f HTTP/HTTP.vcxproj
+
+      - name: CMake
+        run: |
+            mkdir build
+            cd build
+            cmake -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ..
+
+      - name: Add MSBuild to PATH
+        if: ${{ matrix.platform == 'windows-latest' }}
+        uses: microsoft/setup-msbuild@main
+
+      - name: Windows build
+        if: ${{ matrix.platform == 'windows-latest' }}
+        run: |
+            echo "Windows build: ${{ matrix.platform }}"
+            cd build
+            msbuild /p:Configuration=Debug /p:Platform=x64 INSTALL.vcxproj
+
+      - name: Ubuntu build
+        if: ${{ matrix.platform == 'ubuntu-latest' }}
+        run: |
+            echo "Ubuntu build: ${{ matrix.platform }}"
+            cd build
+            make install
