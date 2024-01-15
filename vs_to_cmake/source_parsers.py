@@ -23,6 +23,9 @@ class IncludeParser(BaseParser):
         super().__init__(data)
 
     def parse(self) -> str:
+        if "AdditionalIncludeDirectories" not in self._data["Project"]["ItemDefinitionGroup"][0]["ClCompile"]:
+            return ""
+
         result = "\ttarget_include_directories(\n" + "\t\t${PROJECT_NAME} PUBLIC\n"
         includes = str(
             self._data["Project"]["ItemDefinitionGroup"][0]["ClCompile"]["AdditionalIncludeDirectories"]).split(';')

@@ -9,6 +9,7 @@ from vs_to_cmake.configuration import Configuration
 class VCXProjParser(BaseParser):
     def __init__(self, data: dict, definitions: List[str]):
         super().__init__(data)
+
         self._definitions = definitions
 
     def parse(self) -> str:
@@ -19,7 +20,6 @@ class VCXProjParser(BaseParser):
         for i in self._data["Project"]["ItemGroup"]:
             if "@Label" in i:
                 item_group = i["ProjectConfiguration"]
-
                 break
 
         for configuration in item_group:
@@ -36,7 +36,6 @@ class VCXProjParser(BaseParser):
                         )
                     else:
                         configuration.set_out_dir(property_group["OutDir"])
-                        configuration.set_int_dir(property_group["IntDir"])
 
             for item_definition_group in self._data["Project"]["ItemDefinitionGroup"]:
                 if f"'$(Configuration)|$(Platform)'=='{name}|{platform}'" == item_definition_group["@Condition"]:
@@ -50,7 +49,9 @@ class VCXProjParser(BaseParser):
                         configuration.add_preprocessor_definitions(definition)
 
                     configuration.language_standard = int(re.search(r"\d+", information["LanguageStandard"]).group())
-                    configuration.set_additional_include_directories(information["AdditionalIncludeDirectories"])
+
+                    if "AdditionalIncludeDirectories" in information:
+                        configuration.set_additional_include_directories(information["AdditionalIncludeDirectories"])
 
         for configuration in configurations:
             result += str(configuration) + "\n\n"
@@ -66,3 +67,39 @@ class ProjectParser(BaseParser):
         for i in self._data["Project"]["PropertyGroup"]:
             if "RootNamespace" in i:
                 return f"project({i['RootNamespace']})\n\n"
+
+
+class ReferencesParser(BaseParser):
+    def __init__(self, data: dict):
+        super().__init__(data)
+
+    def parse(self) -> str:
+        result = ""
+
+        references = None
+
+        for i in self._data["Project"]["ItemGroup"]:
+            if "ProjectReference" in i:
+                references = i["ProjectReference"]
+                break
+
+        if references is None:
+            return result
+
+        if type(references) is list:
+            for reference in references:
+                result += f"add_subdirectory({self._convert(reference['@Include'])})\n"
+
+            result += '\n'
+        else:
+            result = f"add_subdirectory({self._convert(references['@Include'])})\n\n"
+
+        return result
+
+    @staticmethod
+    def _convert(path: str) -> str:
+        components = path.replace('\\', '/').split('/')
+
+        del components[-1]
+
+        return "/".join(components)

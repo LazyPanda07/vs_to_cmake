@@ -8,20 +8,15 @@ class Configuration:
     def __init__(self, name: str, platform: str):
         self.name = name
         self.platform = platform
+        self.language_standard = int()
         self._configuration = ""
         self._out_dir = ""
-        self._int_dir = ""
         self._preprocessor_definitions: List[str] = []
-        self.language_standard = int()
         self._additional_include_directories = ""
 
     @converter
     def set_out_dir(self, out_dir: str):
         self._out_dir = out_dir
-
-    @converter
-    def set_int_dir(self, int_dir: str):
-        self._int_dir = int_dir
 
     @converter
     def add_preprocessor_definitions(self, preprocessor_definitions: str):
