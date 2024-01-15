@@ -36,11 +36,13 @@ jobs:
         run: |
             cd HTTP
             vs_to_cmake -f HTTP.vcxproj
+            cat CMakeLists.txt
       
       - name: Generate JSON CMakeLists.txt
         run: |
             cd HTTP/JSON
             vs_to_cmake -f JSON.vcxproj
+            cat CMakeLists.txt
 
       - name: CMake
         run: |
