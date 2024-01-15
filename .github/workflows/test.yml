@@ -16,9 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Create build dir
-        run: mkdir build
-
       - name: Install vs_to_cmake
         run: pip install .
 
@@ -27,6 +24,7 @@ jobs:
         with:
           repository: LazyPanda07/HTTP
           path: HTTP
+          submodules: recursive
 
       - name: Current dir
         run: dir
@@ -34,11 +32,20 @@ jobs:
       - name: CMake version
         run: cmake --version
 
-      - name: Generate CMakeLists.txt
-        run: vs_to_cmake -f HTTP/HTTP.vcxproj
+      - name: Generate HTTP CMakeLists.txt
+        run: |
+            cd HTTP
+            vs_to_cmake -f HTTP.vcxproj
+      
+      - name: Generate JSON CMakeLists.txt
+        run: |
+            cd HTTP/JSON
+            vs_to_cmake -f JSON.vcxproj
 
       - name: CMake
         run: |
+            cd HTTP
+            mkdir build
             cd build
             cmake -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ..
 
