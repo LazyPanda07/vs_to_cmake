@@ -31,10 +31,10 @@ class Configuration:
         self._configuration = get_vs_configuration_type_to_cmake_type(configuration) + sources.parse() + include.parse()
 
     def __str__(self):
-        result = f"if (${{CMAKE_BUILD_TYPE}} STREQUAL {self.name})\n"
+        result = f"if (${{VS_BUILD_CONFIGURATION}} STREQUAL {self.name})\n"
 
-        result += Configuration._add_line(f"set(PLATFORM {self.platform})")
-        result += Configuration._add_line(f"set(CONFIGURATION {self.name})")
+        result += Configuration._add_line(f"set(VS_CONFIGURATION {self.name})")
+        result += Configuration._add_line(f"set(VS_PLATFORM {self.platform})")
         result += Configuration._add_line(f"set(CMAKE_CXX_STANDARD {self.language_standard})")
         result += Configuration._add_line(f"set(CMAKE_INSTALL_PREFIX {self._out_dir})", True)
 
