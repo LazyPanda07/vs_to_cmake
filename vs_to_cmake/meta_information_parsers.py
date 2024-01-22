@@ -7,6 +7,8 @@ from vs_to_cmake.configuration import Configuration
 
 
 class VCXProjParser(BaseParser):
+    _latest_cpp_standard = 20
+
     def __init__(self, data: dict, definitions: List[str]):
         super().__init__(data)
 
@@ -48,7 +50,10 @@ class VCXProjParser(BaseParser):
                     for definition in self._definitions:
                         configuration.add_preprocessor_definitions(definition)
 
-                    configuration.language_standard = int(re.search(r"\d+", information["LanguageStandard"]).group())
+                    if information["LanguageStandard"] == "stdcpplatest":
+                        configuration.language_standard = VCXProjParser._latest_cpp_standard
+                    else:
+                        configuration.language_standard = int(re.search(r"\d+", information["LanguageStandard"]).group())
 
                     if "AdditionalIncludeDirectories" in information:
                         configuration.set_additional_include_directories(information["AdditionalIncludeDirectories"])
@@ -85,7 +90,7 @@ class ReferencesParser(BaseParser):
 
         if references is None:
             return result
-        
+
         link_libraries = []
 
         if type(references) is list:
@@ -108,7 +113,7 @@ class ReferencesParser(BaseParser):
     @staticmethod
     def _convert(path: str, link_libraries: List[str]) -> str:
         components = path.replace('\\', '/').split('/')
-        
+
         link_libraries.append(components[-1].split('.')[0])
 
         del components[-1]

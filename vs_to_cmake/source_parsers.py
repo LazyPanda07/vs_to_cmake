@@ -11,7 +11,10 @@ class SourceParser(BaseParser):
         for i in self._data["Project"]["ItemGroup"]:
             if "ClCompile" in i:
                 for j in i["ClCompile"]:
-                    result += f"\t\t{j['@Include']}\n".replace("\\", "/")
+                    if type(j) is dict:
+                        result += f"\t\t{j['@Include']}\n".replace('\\', '/')
+                    else:
+                        result += f"\t\t{j}\n".replace('\\', '/')
 
         result += "\t)\n\n"
 
