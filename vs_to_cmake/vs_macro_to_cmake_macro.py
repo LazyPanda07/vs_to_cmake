@@ -1,8 +1,8 @@
 _macros = {
     "$(SolutionDir)": "${CMAKE_SOURCE_DIR}/",
-    "$(Configuration)": "${CONFIGURATION}",
+    "$(Configuration)": "${VS_CONFIGURATION}",
     "$(ProjectDir)": "${PROJECT_SOURCE_DIR}/",
-    "$(Platform)": "${PLATFORM}",
+    "$(Platform)": "${VS_PLATFORM}",
     "$(ProjectName)": "${PROJECT_NAME}",
     "%(PreprocessorDefinitions)": ""
 }

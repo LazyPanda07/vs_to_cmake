@@ -9,7 +9,7 @@ jobs:
   test:
     strategy:
       matrix:
-        platform: [windows-latest]
+        platform: [windows-latest, ubuntu-latest]
         configuration: [Debug, DebugDLL, Release, ReleaseDLL, ProductionRelease, ProductionReleaseDLL]
     runs-on: ${{ matrix.platform }}
   
@@ -26,22 +26,28 @@ jobs:
           path: HTTP
           submodules: recursive
 
-      - name: Current dir
-        run: dir
+      - name: Add MSBuild to PATH
+        if: ${{ matrix.platform == 'windows-latest' }}
+        uses: microsoft/setup-msbuild@main
 
-      - name: CMake version
-        run: cmake --version
+      - name: Setup build type
+        shell: pwsh
+        run: echo "BUILD_TYPE=$(if ("${{ matrix.configuration }}".Contains("Release")) { echo "Release" } else { echo "Debug" })" >> $Env:GITHUB_ENV
+
+      - name: Setup platform
+        shell: pwsh
+        run: echo "PLATFORM=$(if ("${{ matrix.platform }}".Contains("windows")) { echo "__WIN32__" } else { echo "__LINUX__" })" >> $Env:GITHUB_ENV
 
       - name: Generate HTTP CMakeLists.txt
         run: |
             cd HTTP
-            vs_to_cmake -f HTTP.vcxproj
+            vs_to_cmake -f HTTP.vcxproj -d ${{ env.PLATFORM }}
             cat CMakeLists.txt
       
       - name: Generate JSON CMakeLists.txt
         run: |
             cd HTTP/JSON
-            vs_to_cmake -f JSON.vcxproj
+            vs_to_cmake -f JSON.vcxproj -d ${{ env.PLATFORM }}
             cat CMakeLists.txt
 
       - name: CMake
@@ -49,22 +55,16 @@ jobs:
             cd HTTP
             mkdir build
             cd build
-            cmake -DCMAKE_BUILD_TYPE=${{ matrix.configuration }} ..
+            cmake -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DVS_BUILD_CONFIGURATION=${{ matrix.configuration }} ..
 
-      - name: Add MSBuild to PATH
-        if: ${{ matrix.platform == 'windows-latest' }}
-        uses: microsoft/setup-msbuild@main
-
-      - name: Windows build
+      - name: Build
         if: ${{ matrix.platform == 'windows-latest' }}
         run: |
-            echo "Windows build: ${{ matrix.platform }}"
             cd HTTP/build
-            msbuild /p:Configuration=Debug /p:Platform=x64 INSTALL.vcxproj
+            msbuild /p:Configuration=${{ env.BUILD_TYPE }} /p:Platform=x64 INSTALL.vcxproj
 
-      - name: Ubuntu build
+      - name: Build
         if: ${{ matrix.platform == 'ubuntu-latest' }}
         run: |
-            echo "Ubuntu build: ${{ matrix.platform }}"
             cd HTTP/build
             make install
